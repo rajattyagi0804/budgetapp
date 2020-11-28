@@ -2,7 +2,8 @@ import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart'; 
 import 'package:flutter/services.dart';
 import 'display.dart';
-import 'Screens/Login/index.dart';
+import 'index.dart';
+
 
 void main() {
   SystemChrome.setEnabledSystemUIOverlays([]);
@@ -20,7 +21,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   AnimationController _controller;
   @override
   void loginF(BuildContext context){
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => new LoginScreen()));
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => new IndexPage()));
   }
   void initState() {
     _controller = AnimationController(
@@ -42,12 +43,15 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     _scale = 1 - _controller.value;
     
     return Scaffold(
-      backgroundColor: Color(0xFF8185E2),
+      backgroundColor: Color(0xFF4A148C),
           body: Container(
       
           child: Center(
             child: Column(
                 children: <Widget>[
+                  SizedBox(
+                    height: 30.0,
+                  ),
                   AvatarGlow(
                     endRadius: 90,
                     duration: Duration(seconds: 2),
@@ -60,12 +64,13 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                         shape: CircleBorder(),
                         child: CircleAvatar(
                           backgroundColor: Colors.grey[100],
-                          child: FlutterLogo(
-                            size: 50.0,
-                          ),
+                          child: Image.asset('assets/logo.jpg'),
+                        //  size: 50.0,
+                    
                           radius: 50.0,
                         )),
                   ),
+                  
                   DelayedAnimation(
                     child: Text(
                       "Smart",
@@ -104,7 +109,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                   //   delay: delayedAmount + 3000,
                   // ),
                   SizedBox(
-                    height: 100.0,
+                    height: 160.0,
                   ),
                   DelayedAnimation(
                   child: GestureDetector(
@@ -123,7 +128,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                 SizedBox(height: 50.0,),
                   DelayedAnimation(
                     child: Text(
-                      "I Already have An Account".toUpperCase(),
+                      "Welcome to Smart Budgeting",
                       style: TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.bold,
@@ -153,7 +158,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
               style: TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF8185E2),
+                color: Color(0xFF4A148C),
               ),
             ),
           

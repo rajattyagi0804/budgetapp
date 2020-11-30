@@ -2,6 +2,7 @@ import 'package:budgetapp/card_screen.dart';
 import 'package:budgetapp/home_page_sceen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:budgetapp/entrydata.dart';
 
 class CurrentScreenIndex extends StatelessWidget {
   final int index;
@@ -20,7 +21,7 @@ class CurrentScreenIndex extends StatelessWidget {
         break;
       case 2:
         {
-          return CardScreen();
+          return SIForm();
         }
         break;
       case 3:

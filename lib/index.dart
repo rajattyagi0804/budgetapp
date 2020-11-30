@@ -39,7 +39,7 @@ class _IndexPageState extends State<IndexPage> {
           title: Text(''),
         ),
         BottomNavigationBarItem(
-          icon: Icon(FontAwesomeIcons.commentDots),
+          icon: Icon(FontAwesomeIcons.history),
           title: Text(''),
         ),
         BottomNavigationBarItem(

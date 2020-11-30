@@ -53,7 +53,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                     height: 30.0,
                   ),
                   AvatarGlow(
-                    endRadius: 90,
+                    endRadius: 70,
                     duration: Duration(seconds: 2),
                     glowColor: Colors.white24,
                     repeat: true,
@@ -62,13 +62,21 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                     child: Material(
                         elevation: 8.0,
                         shape: CircleBorder(),
-                        child: CircleAvatar(
-                          backgroundColor: Colors.grey[100],
-                          child: Image.asset('assets/logo.jpg'),
-                        //  size: 50.0,
-                    
-                          radius: 50.0,
-                        )),
+                        child: 
+                        ClipOval(
+                           child: Image.asset(
+                             'assets/logo.jpg',
+                             fit: BoxFit.cover,
+                            ),
+                   ),
+                        // CircleAvatar(
+                        //   backgroundColor: Colors.grey[100],
+                        //   child: Image.asset('assets/logo.jpg',fit: BoxFit.cover),
+                        // // size: 50.0,
+                          // radius: 50.0,
+                        // ),
+                        ),
+                        
                   ),
                   
                   DelayedAnimation(

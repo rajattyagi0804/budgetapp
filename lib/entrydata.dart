@@ -58,9 +58,13 @@ class _SIFormState extends State<SIForm> {
                     backgroundColor: const Color(0xFFFFC107),
                     foregroundColor: Colors.black,
                     onPressed: () {
-                      setState(() {
-                        _reset();
-                      });
+                      // setState(() {
+                      //   _reset();
+                      // });
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SIForm()),
+                      );
                     },
                     icon: Icon(Icons.add),
                     label: Text('NEW'),
@@ -113,11 +117,12 @@ class _SIFormState extends State<SIForm> {
                     padding: EdgeInsets.only(
                         top: _minimumPadding, bottom: _minimumPadding),
                     child: TextFormField(
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.text,
                       style: textStyle,
                       controller: roiController,
                       validator: (String value) {
-                        if (value.isEmpty) {
+                        RegExp calender = RegExp(r'[^0-9]');
+                        if (value.isEmpty || calender.hasMatch(value)) {
                           return 'Please Enter The Money !';
                         }
                       },
@@ -149,12 +154,13 @@ class _SIFormState extends State<SIForm> {
                           keyboardType: TextInputType.datetime,
                           style: textStyle,
                           controller: termController,
-                         validator : (String value) {
- RegExp calenderDate = RegExp(r'^((((0?[1-9]|[12]\d|3[01])[/](0?[13578]|1[02])[/]((1[6-9]|[2-9]\d)?\d{2}))|((0?[1-9]|[12]\d|30)[/](0?[13456789]|1[012])[/]((1[6-9]|[2-9]\d)?\d{2}))|((0?[1-9]|1\d|2[0-8])[/]0?2[/]((1[6-9]|[2-9]\d)?\d{2}))|(29[/]0?2[/]((1[6-9]|[2-9]\d)?(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00)|00)))|(((0[1-9]|[12]\d|3[01])(0[13578]|1[02])((1[6-9]|[2-9]\d)?\d{2}))|((0[1-9]|[12]\d|30)(0[13456789]|1[012])((1[6-9]|[2-9]\d)?\d{2}))|((0[1-9]|1\d|2[0-8])02((1[6-9]|[2-9]\d)?\d{2}))|(2902((1[6-9]|[2-9]\d)?(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00)|00))))$');
+                          validator: (String value) {
+                            RegExp calenderDate = RegExp(
+                                r'^((((0?[1-9]|[12]\d|3[01])[/](0?[13578]|1[02])[/]((1[6-9]|[2-9]\d)?\d{2}))|((0?[1-9]|[12]\d|30)[/](0?[13456789]|1[012])[/]((1[6-9]|[2-9]\d)?\d{2}))|((0?[1-9]|1\d|2[0-8])[/]0?2[/]((1[6-9]|[2-9]\d)?\d{2}))|(29[/]0?2[/]((1[6-9]|[2-9]\d)?(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00)|00)))|(((0[1-9]|[12]\d|3[01])(0[13578]|1[02])((1[6-9]|[2-9]\d)?\d{2}))|((0[1-9]|[12]\d|30)(0[13456789]|1[012])((1[6-9]|[2-9]\d)?\d{2}))|((0[1-9]|1\d|2[0-8])02((1[6-9]|[2-9]\d)?\d{2}))|(2902((1[6-9]|[2-9]\d)?(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00)|00))))$');
 
-    if (!calenderDate.hasMatch(value))
-      return 'Enter Valid Date';
-  },
+                            if (!calenderDate.hasMatch(value))
+                              return 'Enter Valid Date';
+                          },
                           decoration: InputDecoration(
                             labelText: 'Date',
                             hintText: 'DD/MM/YYYY',
@@ -185,15 +191,13 @@ class _SIFormState extends State<SIForm> {
                               child: Text(
                                 value,
                                 style: TextStyle(
-                                  color:Colors.green,
-                                  fontWeight: FontWeight.bold
-                                ),
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold),
                               ),
                             );
                           }).toList(),
                           value: _currentItemSelected,
                           onChanged: (String newValueSelected) {
-                            // Your code to execute, when a menu item is selected from dropdown
                             _onDropDownItemSelected(newValueSelected);
                           },
                         ))
@@ -240,26 +244,25 @@ class _SIFormState extends State<SIForm> {
 
   void _onDropDownItemSelected(newValueSelected) {
     setState(() {
-      // print(newValueSelected);
       this._currentItemSelected = newValueSelected;
     });
   }
 
   String _calculateTotalReturns() {
-    double roi = double.parse(roiController.text);
+    //  double roi = double.parse(roiController.text);
+    String roi = roiController.text;
     String navya = principalController.text;
     String n2 = termController.text;
     String n3 = this._currentItemSelected;
-    String k = 'i $roi and $navya $n2 $n3';
+    String k = 'I am $roi and $navya and $n2 and $n3';
     return k;
-    //  rajat(navya,roi,n2,n3);
+    //  return rajat(navya,roi,n2,n3);
   }
-
-  void _reset() {
-    principalController.text = '';
-    roiController.text = '';
-    termController.text = '';
-    displayResult = '';
-    _currentItemSelected = _currencies[0];
-  }
+  // void _reset() {
+  //   principalController.text = '';
+  //   roiController.text = '';
+  //   termController.text = '';
+  //   displayResult = '';
+  //   _currentItemSelected = _currencies[0];
+  // }
 }

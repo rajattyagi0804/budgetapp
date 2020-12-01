@@ -1,9 +1,8 @@
 import 'package:avatar_glow/avatar_glow.dart';
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'display.dart';
 import 'index.dart';
-
 
 void main() {
   SystemChrome.setEnabledSystemUIOverlays([]);
@@ -20,9 +19,11 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   double _scale;
   AnimationController _controller;
   @override
-  void loginF(BuildContext context){
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => new IndexPage()));
+  void loginF(BuildContext context) {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => new IndexPage()));
   }
+
   void initState() {
     _controller = AnimationController(
       vsync: this,
@@ -41,116 +42,106 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     final color = Colors.white;
     _scale = 1 - _controller.value;
-    
+
     return Scaffold(
       backgroundColor: Color(0xFF4A148C),
-          body: Container(
-      
-          child: Center(
-            child: Column(
-                children: <Widget>[
-                  SizedBox(
-                    height: 30.0,
-                  ),
-                  AvatarGlow(
-                    endRadius: 70,
-                    duration: Duration(seconds: 2),
-                    glowColor: Colors.white24,
-                    repeat: true,
-                    repeatPauseDuration: Duration(seconds: 2),
-                    startDelay: Duration(seconds: 1),
-                    child: Material(
-                        elevation: 8.0,
-                        shape: CircleBorder(),
-                        child: 
-                        ClipOval(
-                           child: Image.asset(
-                             'assets/logo.jpg',
-                             fit: BoxFit.cover,
-                            ),
-                   ),
-                        // CircleAvatar(
-                        //   backgroundColor: Colors.grey[100],
-                        //   child: Image.asset('assets/logo.jpg',fit: BoxFit.cover),
-                        // // size: 50.0,
-                          // radius: 50.0,
-                        // ),
-                        ),
-                        
-                  ),
-                  
-                  DelayedAnimation(
-                    child: Text(
-                      "Smart",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 35.0,
-                          color: color),
-                    ),
-                    delay: delayedAmount + 1000,
-                  ),
-                  DelayedAnimation(
-                    child: Text(
-                      "Budgeting",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 35.0,
-                          color: color),
-                    ),
-                    delay: delayedAmount + 2000,
-                  ),
-                  SizedBox(
-                    height: 30.0,
-                  ),
-                  DelayedAnimation(
-                    child: Text(
-                      "A plan to spend your Money ",
-                      style: TextStyle(fontSize: 20.0, color: color),
-                    ),
-                    delay: delayedAmount + 3000,
-                  ),
-                  // DelayedAnimation(
-                  //   child: Text(
-                  //     "Journaling  companion",
-                  //     style: TextStyle(fontSize: 20.0, color: color),
-                  //   ),
-                  //   delay: delayedAmount + 3000,
-                  // ),
-                  SizedBox(
-                    height: 160.0,
-                  ),
-                  DelayedAnimation(
-                  child: GestureDetector(
-                    onTap: (){
-                      this.loginF(context);
-
-                    },
-
-                    child: Transform.scale(
-                      scale: _scale,
-                      child: _animatedButtonUI,
-                    ),
-                  ),
-                  delay: delayedAmount + 4000,
-                ),
-                SizedBox(height: 50.0,),
-                  DelayedAnimation(
-                    child: Text(
-                      "Welcome to Smart Budgeting",
-                      style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                          color: color),
-                    ),
-                    delay: delayedAmount + 5000,
-                  ),
-                ],
+      body: Container(
+        child: Center(
+          child: Column(
+            children: <Widget>[
+              SizedBox(
+                height: 30.0,
               ),
-            ),
+              AvatarGlow(
+                endRadius: 70,
+                duration: Duration(seconds: 2),
+                glowColor: Colors.white24,
+                repeat: true,
+                repeatPauseDuration: Duration(seconds: 2),
+                startDelay: Duration(seconds: 1),
+                child: Material(
+                  elevation: 8.0,
+                  shape: CircleBorder(),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/homeicon.jpg',
+                    ),
+                  ),
+                ),
+              ),
+
+              DelayedAnimation(
+                child: Text(
+                  "Smart",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 35.0,
+                      color: color),
+                ),
+                delay: delayedAmount + 1000,
+              ),
+              DelayedAnimation(
+                child: Text(
+                  "Budgeting",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 35.0,
+                      color: color),
+                ),
+                delay: delayedAmount + 2000,
+              ),
+              SizedBox(
+                height: 30.0,
+              ),
+              DelayedAnimation(
+                child: Text(
+                  "A plan to spend your Money ",
+                  style: TextStyle(fontSize: 20.0, color: color),
+                ),
+                delay: delayedAmount + 3000,
+              ),
+              // DelayedAnimation(
+              //   child: Text(
+              //     "Journaling  companion",
+              //     style: TextStyle(fontSize: 20.0, color: color),
+              //   ),
+              //   delay: delayedAmount + 3000,
+              // ),
+              SizedBox(
+                height: 160.0,
+              ),
+              DelayedAnimation(
+                child: GestureDetector(
+                  onTap: () {
+                    this.loginF(context);
+                  },
+                  child: Transform.scale(
+                    scale: _scale,
+                    child: _animatedButtonUI,
+                  ),
+                ),
+                delay: delayedAmount + 4000,
+              ),
+              SizedBox(
+                height: 50.0,
+              ),
+              DelayedAnimation(
+                child: Text(
+                  "Welcome to Smart Budgeting",
+                  style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                      color: color),
+                ),
+                delay: delayedAmount + 5000,
+              ),
+            ],
           ),
-          );
+        ),
+      ),
+    );
   }
- 
+
   Widget get _animatedButtonUI => Container(
         height: 60,
         width: 270,
@@ -158,23 +149,20 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
           borderRadius: BorderRadius.circular(100.0),
           color: Colors.white,
         ),
-        child:Center(
-         
-              child: 
-            Text(
-              'Continue >>>',
-              style: TextStyle(
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF4A148C),
-              ),
+        child: Center(
+          child: Text(
+            'Continue >>>',
+            style: TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF4A148C),
             ),
-          
+          ),
         ),
       );
 
 //   void _onTapDown(TapDownDetails details) {
-     
+
 //            Navigator.push(
 //     context,
 //     MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -185,5 +173,3 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 //     _controller.reverse();
 //   }
 }
- 
-

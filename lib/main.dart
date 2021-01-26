@@ -1,11 +1,15 @@
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:budgetapp/Navigators/navigation.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'display.dart';
-import 'index.dart';
+import 'Animation/animationdisplay.dart';
+import 'Navigators/navigation.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIOverlays([]);
+  await Firebase.initializeApp();
   runApp(MaterialApp(home: MyApp(), debugShowCheckedModeBanner: false));
 }
 
@@ -20,8 +24,8 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   AnimationController _controller;
   @override
   void loginF(BuildContext context) {
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => new IndexPage()));
+    Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (context) => new LoginNavigation()));
   }
 
   void initState() {
@@ -160,16 +164,4 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
           ),
         ),
       );
-
-//   void _onTapDown(TapDownDetails details) {
-
-//            Navigator.push(
-//     context,
-//     MaterialPageRoute(builder: (context) => LoginScreen()),
-//   );
-//   }
-
-//   void _onTapUp(TapUpDetails details) {
-//     _controller.reverse();
-//   }
 }

@@ -1,7 +1,9 @@
 import 'package:bezier_chart/bezier_chart.dart';
 import 'package:budgetapp/common/color_constants.dart';
-import 'package:budgetapp/common/constants.dart';
 import 'package:budgetapp/custom_widgets/graph_card_widget.dart';
+import 'package:budgetapp/services/database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -14,11 +16,37 @@ class HomePageScreen extends StatefulWidget {
 }
 
 class _HomePageScreenState extends State<HomePageScreen> {
+  var income = 0, expense = 0;
+  FirebaseAuth auth = FirebaseAuth.instance;
+
   final numberFormat = new NumberFormat("##,###.00#", "en_US");
   Color color = ColorConstants.gblackColor;
   Color fcolor = ColorConstants.kgreyColor;
   bool isActive = false;
   int activeIndex;
+  FirestoreFunction firestoreFunction = FirestoreFunction();
+  getIncome() async {
+    String id = auth.currentUser.uid;
+    QuerySnapshot k = await firestoreFunction.getUserInformation(id);
+    if (k != null) {
+      for (var i = 0; i < k.docs.length; i++) {
+        if (k.docs[i].get("moneytype") == "Income") {
+          income += k.docs[i].get("money");
+        } else {
+          expense += k.docs[i].get("money");
+        }
+      }
+      setState(() {});
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getIncome();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,7 +100,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    r'$' + "${numberFormat.format(27802.05)}",
+                    "${income - expense}",
                     style: GoogleFonts.openSans(
                       fontSize: 40,
                       fontWeight: FontWeight.w600,
@@ -81,80 +109,118 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   ),
                   Row(
                     children: [
-                      Text(
-                        "15%",
-                        style: GoogleFonts.spartan(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: ColorConstants.kwhiteColor,
-                        ),
-                      ),
-                      Icon(
-                        Icons.arrow_upward,
-                        color: ColorConstants.kwhiteColor,
-                      ),
+                      // Text(
+                      //   "10%",
+                      //   style: GoogleFonts.spartan(
+                      //     fontSize: 12,
+                      //     fontWeight: FontWeight.w500,
+                      //     color: ColorConstants.kwhiteColor,
+                      //   ),
+                      // ),
+                      income - expense > 0
+                          ? Icon(
+                              Icons.arrow_upward,
+                              size: 30,
+                              color: Colors.white,
+                            )
+                          : Icon(
+                              Icons.arrow_downward,
+                              size: 30,
+                              color: Colors.white,
+                            ),
+
+                      // Icon(
+                      //   Icons.arrow_upward,
+                      //   color: ColorConstants.kwhiteColor,
+                      // ),
                     ],
                   )
                 ],
               ),
-              Center(
-                child: Container(
-                  height: MediaQuery.of(context).size.height / 2.5,
-                  width: MediaQuery.of(context).size.width,
-                  child: BezierChart(
-                    bezierChartScale: BezierChartScale.CUSTOM,
-                    selectedValue: 1,
-                    xAxisCustomValues: [1, 5, 10, 15, 20, 25, 30],
-                    series: const [
-                      BezierLine(
-                        label: "june",
-                        lineColor: ColorConstants.korangeColor,
-                        dataPointStrokeColor: ColorConstants.kwhiteColor,
-                        dataPointFillColor: ColorConstants.korangeColor,
-                        lineStrokeWidth: 3,
-                        data: const [
-                          DataPoint<double>(value: 100, xAxis: 1),
-                          DataPoint<double>(value: 130, xAxis: 5),
-                          DataPoint<double>(value: 300, xAxis: 10),
-                          DataPoint<double>(value: 150, xAxis: 15),
-                          DataPoint<double>(value: 75, xAxis: 20),
-                          DataPoint<double>(value: 100, xAxis: 25),
-                          DataPoint<double>(value: 250, xAxis: 30),
-                        ],
-                      ),
-                    ],
-                    config: BezierChartConfig(
-                      startYAxisFromNonZeroValue: true,
-                      verticalIndicatorFixedPosition: false,
-                      bubbleIndicatorColor: ColorConstants.gblackColor,
-                      bubbleIndicatorLabelStyle:
-                          TextStyle(color: ColorConstants.kwhiteColor),
-                      bubbleIndicatorTitleStyle:
-                          TextStyle(color: ColorConstants.kwhiteColor),
-                      bubbleIndicatorValueStyle:
-                          TextStyle(color: ColorConstants.kwhiteColor),
-                      footerHeight: 40,
-                      displayYAxis: false,
-                      stepsYAxis: 15,
-                      displayLinesXAxis: false,
-                      xAxisTextStyle: TextStyle(
-                        color: ColorConstants.kblackColor,
-                      ),
-                      backgroundGradient: LinearGradient(
-                        colors: [
-                          ColorConstants.kblackColor,
-                          ColorConstants.kblackColor,
-                          ColorConstants.kblackColor,
-                          ColorConstants.kblackColor
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                      snap: false,
-                    ),
-                  ),
-                ),
+
+              Container(
+                height: MediaQuery.of(context).size.height / 2.5,
+                width: MediaQuery.of(context).size.width,
+                child: Center(
+                    child: income - expense > 0
+                        ? CircleAvatar(
+                            radius: 70,
+                            child: Icon(
+                              Icons.arrow_upward,
+                              size: 50,
+                              color: Colors.white,
+                            ),
+                            backgroundColor: Colors.green,
+                          )
+                        : CircleAvatar(
+                            child: Icon(
+                              Icons.arrow_downward,
+                              size: 50,
+                              color: Colors.white,
+                            ),
+                            radius: 70,
+                            backgroundColor: Colors.red[900],
+                          )),
               ),
+
+              // Center(
+              //   child: Container(
+              //     height: MediaQuery.of(context).size.height / 2.5,
+              //     width: MediaQuery.of(context).size.width,
+              //     child: BezierChart(
+              //       bezierChartScale: BezierChartScale.CUSTOM,
+              //       selectedValue: 1,
+              //       xAxisCustomValues: [1, 5, 10, 15, 20, 25, 30],
+              //       series: const [
+              //         BezierLine(
+              //           label: "june",
+              //           lineColor: ColorConstants.korangeColor,
+              //           dataPointStrokeColor: ColorConstants.kwhiteColor,
+              //           dataPointFillColor: ColorConstants.korangeColor,
+              //           lineStrokeWidth: 3,
+              //           data: const [
+              //             DataPoint<double>(value: 100, xAxis: 1),
+              //             DataPoint<double>(value: 130, xAxis: 5),
+              //             DataPoint<double>(value: 300, xAxis: 10),
+              //             DataPoint<double>(value: 150, xAxis: 15),
+              //             DataPoint<double>(value: 75, xAxis: 20),
+              //             DataPoint<double>(value: 100, xAxis: 25),
+              //             DataPoint<double>(value: 250, xAxis: 30),
+              //           ],
+              //         ),
+              //       ],
+              //       config: BezierChartConfig(
+              //         startYAxisFromNonZeroValue: true,
+              //         verticalIndicatorFixedPosition: false,
+              //         bubbleIndicatorColor: ColorConstants.gblackColor,
+              //         bubbleIndicatorLabelStyle:
+              //             TextStyle(color: ColorConstants.kwhiteColor),
+              //         bubbleIndicatorTitleStyle:
+              //             TextStyle(color: ColorConstants.kwhiteColor),
+              //         bubbleIndicatorValueStyle:
+              //             TextStyle(color: ColorConstants.kwhiteColor),
+              //         footerHeight: 40,
+              //         displayYAxis: false,
+              //         stepsYAxis: 15,
+              //         displayLinesXAxis: false,
+              //         xAxisTextStyle: TextStyle(
+              //           color: ColorConstants.kblackColor,
+              //         ),
+              //         backgroundGradient: LinearGradient(
+              //           colors: [
+              //             ColorConstants.kblackColor,
+              //             ColorConstants.kblackColor,
+              //             ColorConstants.kblackColor,
+              //             ColorConstants.kblackColor
+              //           ],
+              //           begin: Alignment.topCenter,
+              //           end: Alignment.bottomCenter,
+              //         ),
+              //         snap: false,
+              //       ),
+              //     ),
+              //   ),
+              // ),
               Row(
                 children: [
                   Container(
@@ -179,7 +245,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                     width: 10,
                   ),
                   GraphCardWidget(
-                    title: Constants.strList[0],
+                    title: "1 \n Month",
                     activeColor: color,
                     fontColor: fcolor,
                     isActive: isActive,
@@ -188,7 +254,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                     width: 10,
                   ),
                   GraphCardWidget(
-                    title: Constants.strList[1],
+                    title: "6 \n Month",
                     activeColor: color,
                     fontColor: fcolor,
                     isActive: isActive,
@@ -197,7 +263,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                     width: 10,
                   ),
                   GraphCardWidget(
-                    title: Constants.strList[2],
+                    title: "1 \n Year",
                     activeColor: color,
                     fontColor: fcolor,
                     isActive: isActive,
@@ -221,7 +287,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   Row(
                     children: [
                       Text(
-                        "75%",
+                        "$income",
                         style: GoogleFonts.spartan(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
@@ -243,7 +309,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Outcome",
+                    "Expense",
                     style: GoogleFonts.spartan(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
@@ -253,7 +319,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   Row(
                     children: [
                       Text(
-                        "25%",
+                        "$expense",
                         style: GoogleFonts.spartan(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,

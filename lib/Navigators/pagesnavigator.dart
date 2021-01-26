@@ -28,12 +28,13 @@ class _IndexPageState extends State<IndexPage> {
   }
 
   Widget _buildBottomNavigationBarPortrait() {
+    var bottomNavigationBarItem = BottomNavigationBarItem(
+      icon: Icon(CupertinoIcons.home),
+      title: Text(''),
+    );
     return BottomNavigationBar(
       items: [
-        BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.home),
-          title: Text(''),
-        ),
+        bottomNavigationBarItem,
         BottomNavigationBarItem(
           icon: Icon(Icons.credit_card),
           title: Text(''),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:budgetapp/common/color_constants.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SIForm extends StatefulWidget {
   @override
@@ -14,7 +16,7 @@ class _SIFormState extends State<SIForm> {
 
   var _currencies = ['Income', 'Expense'];
   final double _minimumPadding = 5.0;
-
+  FirebaseAuth auth = FirebaseAuth.instance;
   var _currentItemSelected = '';
 
   @override
@@ -57,15 +59,7 @@ class _SIFormState extends State<SIForm> {
                   FloatingActionButton.extended(
                     backgroundColor: const Color(0xFFFFC107),
                     foregroundColor: Colors.black,
-                    onPressed: () {
-                      // setState(() {
-                      //   _reset();
-                      // });
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SIForm()),
-                      );
-                    },
+                    onPressed: reset,
                     icon: Icon(Icons.add),
                     label: Text('NEW'),
                   ),
@@ -221,7 +215,8 @@ class _SIFormState extends State<SIForm> {
                             onPressed: () {
                               setState(() {
                                 if (_formKey.currentState.validate()) {
-                                  this.displayResult = _calculateTotalReturns();
+                                  // this.displayResult = _calculateTotalReturns();
+                                  _calculateTotalReturns();
                                 }
                               });
                             },
@@ -248,21 +243,31 @@ class _SIFormState extends State<SIForm> {
     });
   }
 
-  String _calculateTotalReturns() {
-    //  double roi = double.parse(roiController.text);
-    String roi = roiController.text;
-    String navya = principalController.text;
-    String n2 = termController.text;
-    String n3 = this._currentItemSelected;
-    String k = 'I am $roi and $navya and $n2 and $n3';
-    return k;
-    //  return rajat(navya,roi,n2,n3);
+  void _calculateTotalReturns() async {
+    Map<String, dynamic> map = {
+      "description": principalController.text,
+      "money": int.parse(roiController.text),
+      "date": termController.text,
+      "moneytype": this._currentItemSelected,
+      "time": DateTime.now().millisecondsSinceEpoch
+    };
+
+    User user = auth.currentUser;
+    String id = user.uid;
+    await FirebaseFirestore.instance
+        .collection("user")
+        .doc(id)
+        .collection("entrydata")
+        .add(map);
+    reset();
   }
-  // void _reset() {
-  //   principalController.text = '';
-  //   roiController.text = '';
-  //   termController.text = '';
-  //   displayResult = '';
-  //   _currentItemSelected = _currencies[0];
-  // }
+
+  reset() {
+    setState(() {
+      _currentItemSelected = _currencies[0];
+      principalController.text = "";
+      roiController.text = "";
+      termController.text = "";
+    });
+  }
 }

@@ -1,6 +1,11 @@
-import 'package:bezier_chart/bezier_chart.dart';
 import 'package:budgetapp/common/color_constants.dart';
-import 'package:budgetapp/custom_widgets/graph_card_widget.dart';
+import 'package:budgetapp/pages/Transaction.dart';
+import 'package:budgetapp/pages/about.dart';
+import 'package:budgetapp/pages/contactPage.dart';
+import 'package:budgetapp/pages/pichartPage.dart';
+import 'package:flutter_rounded_progress_bar/flutter_rounded_progress_bar.dart';
+import 'package:flutter_rounded_progress_bar/rounded_progress_bar_style.dart';
+import 'package:flutter_share/flutter_share.dart';
 import 'package:budgetapp/services/database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,12 +22,15 @@ class HomePageScreen extends StatefulWidget {
 
 class _HomePageScreenState extends State<HomePageScreen> {
   var income = 0, expense = 0;
+
   FirebaseAuth auth = FirebaseAuth.instance;
 
   final numberFormat = new NumberFormat("##,###.00#", "en_US");
   Color color = ColorConstants.gblackColor;
   Color fcolor = ColorConstants.kgreyColor;
   bool isActive = false;
+
+  bool _loading;
   int activeIndex;
   FirestoreFunction firestoreFunction = FirestoreFunction();
   getIncome() async {
@@ -42,9 +50,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getIncome();
+    _loading = false;
   }
 
   @override
@@ -62,16 +70,25 @@ class _HomePageScreenState extends State<HomePageScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Icon(
-                    Icons.short_text,
-                    color: ColorConstants.kwhiteColor,
-                  ),
-                  Icon(
-                    Icons.more_vert,
-                    color: ColorConstants.kwhiteColor,
-                  )
+                  Padding(
+                      padding: const EdgeInsets.all(3.0),
+                      child: PopupMenuButton<String>(
+                        child: Icon(
+                          Icons.more_vert,
+                          color: ColorConstants.kwhiteColor,
+                        ),
+                        onSelected: choiceAction,
+                        itemBuilder: (BuildContext context) {
+                          return Constants.choices.map((String choice) {
+                            return PopupMenuItem<String>(
+                              value: choice,
+                              child: Text(choice),
+                            );
+                          }).toList();
+                        },
+                      ))
                 ],
               ),
               SizedBox(
@@ -86,192 +103,89 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 ),
               ),
               SizedBox(
-                height: 20,
+                height: 5,
               ),
-              Text(
-                "Money Received",
-                style: GoogleFonts.spartan(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: ColorConstants.kgreyColor,
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "\u20b9 ${income - expense}",
+                      style: GoogleFonts.openSans(
+                        fontSize: 40,
+                        fontWeight: FontWeight.w600,
+                        color: ColorConstants.kwhiteColor,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        income - expense == 0
+                            ? Icon(
+                                Icons.import_export,
+                                size: 30,
+                                color: Colors.white,
+                              )
+                            : income - expense > 0
+                                ? Icon(
+                                    Icons.arrow_upward,
+                                    size: 30,
+                                    color: Colors.white,
+                                  )
+                                : Icon(
+                                    Icons.arrow_downward,
+                                    size: 30,
+                                    color: Colors.white,
+                                  ),
+                      ],
+                    )
+                  ],
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "${income - expense}",
-                    style: GoogleFonts.openSans(
-                      fontSize: 40,
-                      fontWeight: FontWeight.w600,
-                      color: ColorConstants.kwhiteColor,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      // Text(
-                      //   "10%",
-                      //   style: GoogleFonts.spartan(
-                      //     fontSize: 12,
-                      //     fontWeight: FontWeight.w500,
-                      //     color: ColorConstants.kwhiteColor,
-                      //   ),
-                      // ),
-                      income - expense > 0
-                          ? Icon(
-                              Icons.arrow_upward,
-                              size: 30,
-                              color: Colors.white,
-                            )
-                          : Icon(
-                              Icons.arrow_downward,
-                              size: 30,
-                              color: Colors.white,
-                            ),
-
-                      // Icon(
-                      //   Icons.arrow_upward,
-                      //   color: ColorConstants.kwhiteColor,
-                      // ),
-                    ],
-                  )
-                ],
-              ),
-
               Container(
                 height: MediaQuery.of(context).size.height / 2.5,
                 width: MediaQuery.of(context).size.width,
-                child: Center(
-                    child: income - expense > 0
-                        ? CircleAvatar(
-                            radius: 70,
-                            child: Icon(
-                              Icons.arrow_upward,
-                              size: 50,
-                              color: Colors.white,
-                            ),
-                            backgroundColor: Colors.green,
-                          )
-                        : CircleAvatar(
-                            child: Icon(
-                              Icons.arrow_downward,
-                              size: 50,
-                              color: Colors.white,
-                            ),
-                            radius: 70,
-                            backgroundColor: Colors.red[900],
-                          )),
-              ),
-
-              // Center(
-              //   child: Container(
-              //     height: MediaQuery.of(context).size.height / 2.5,
-              //     width: MediaQuery.of(context).size.width,
-              //     child: BezierChart(
-              //       bezierChartScale: BezierChartScale.CUSTOM,
-              //       selectedValue: 1,
-              //       xAxisCustomValues: [1, 5, 10, 15, 20, 25, 30],
-              //       series: const [
-              //         BezierLine(
-              //           label: "june",
-              //           lineColor: ColorConstants.korangeColor,
-              //           dataPointStrokeColor: ColorConstants.kwhiteColor,
-              //           dataPointFillColor: ColorConstants.korangeColor,
-              //           lineStrokeWidth: 3,
-              //           data: const [
-              //             DataPoint<double>(value: 100, xAxis: 1),
-              //             DataPoint<double>(value: 130, xAxis: 5),
-              //             DataPoint<double>(value: 300, xAxis: 10),
-              //             DataPoint<double>(value: 150, xAxis: 15),
-              //             DataPoint<double>(value: 75, xAxis: 20),
-              //             DataPoint<double>(value: 100, xAxis: 25),
-              //             DataPoint<double>(value: 250, xAxis: 30),
-              //           ],
-              //         ),
-              //       ],
-              //       config: BezierChartConfig(
-              //         startYAxisFromNonZeroValue: true,
-              //         verticalIndicatorFixedPosition: false,
-              //         bubbleIndicatorColor: ColorConstants.gblackColor,
-              //         bubbleIndicatorLabelStyle:
-              //             TextStyle(color: ColorConstants.kwhiteColor),
-              //         bubbleIndicatorTitleStyle:
-              //             TextStyle(color: ColorConstants.kwhiteColor),
-              //         bubbleIndicatorValueStyle:
-              //             TextStyle(color: ColorConstants.kwhiteColor),
-              //         footerHeight: 40,
-              //         displayYAxis: false,
-              //         stepsYAxis: 15,
-              //         displayLinesXAxis: false,
-              //         xAxisTextStyle: TextStyle(
-              //           color: ColorConstants.kblackColor,
-              //         ),
-              //         backgroundGradient: LinearGradient(
-              //           colors: [
-              //             ColorConstants.kblackColor,
-              //             ColorConstants.kblackColor,
-              //             ColorConstants.kblackColor,
-              //             ColorConstants.kblackColor
-              //           ],
-              //           begin: Alignment.topCenter,
-              //           end: Alignment.bottomCenter,
-              //         ),
-              //         snap: false,
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              Row(
-                children: [
-                  Container(
-                    height: 50,
-                    width: MediaQuery.of(context).size.width / 3.4,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20.0),
-                      color: ColorConstants.korangeColor,
-                    ),
-                    child: Center(
-                      child: Text(
-                        "Apr to Jun",
-                        style: GoogleFonts.spartan(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: ColorConstants.kwhiteColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  GraphCardWidget(
-                    title: "1 \n Month",
-                    activeColor: color,
-                    fontColor: fcolor,
-                    isActive: isActive,
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  GraphCardWidget(
-                    title: "6 \n Month",
-                    activeColor: color,
-                    fontColor: fcolor,
-                    isActive: isActive,
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  GraphCardWidget(
-                    title: "1 \n Year",
-                    activeColor: color,
-                    fontColor: fcolor,
-                    isActive: isActive,
-                  ),
-                ],
+                child: GestureDetector(
+                  onDoubleTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return Readddata();
+                    }));
+                  },
+                  child: Center(
+                      child: income - expense == 0
+                          ? CircleAvatar(
+                              radius: 90,
+                              child: Icon(
+                                Icons.assignment_turned_in_sharp,
+                                size: 70,
+                                color: Colors.white,
+                              ),
+                              backgroundColor: Colors.blue,
+                            )
+                          : income - expense > 0
+                              ? CircleAvatar(
+                                  radius: 90,
+                                  child: Icon(
+                                    Icons.arrow_upward,
+                                    size: 70,
+                                    color: Colors.white,
+                                  ),
+                                  backgroundColor: Colors.green,
+                                )
+                              : CircleAvatar(
+                                  child: Icon(
+                                    Icons.arrow_downward,
+                                    size: 70,
+                                    color: Colors.white,
+                                  ),
+                                  radius: 90,
+                                  backgroundColor: Colors.red[900],
+                                )),
+                ),
               ),
               SizedBox(
-                height: 20,
+                height: 50,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -295,11 +209,39 @@ class _HomePageScreenState extends State<HomePageScreen> {
                         ),
                       ),
                       Icon(
-                        Icons.arrow_downward,
+                        Icons.arrow_upward,
                         color: ColorConstants.kwhiteColor,
                       ),
                     ],
                   )
+                ],
+              ),
+              Row(
+                children: [
+                  Container(
+                      height: 25,
+                      width: MediaQuery.of(context).size.width / 1.1,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          RoundedProgressBar(
+                            style: RoundedProgressBarStyle(
+                                colorProgress: Colors.green,
+                                backgroundProgress: Colors.grey[400],
+                                borderWidth: 0,
+                                widthShadow: 0),
+                            borderRadius: BorderRadius.circular(24),
+                            height: 7,
+                            percent: ((income.toDouble() * 100) /
+                                        (income.toDouble() +
+                                            expense.toDouble())) >
+                                    0
+                                ? ((income.toDouble() * 100) /
+                                    (income.toDouble() + expense.toDouble()))
+                                : 0,
+                          ),
+                        ],
+                      )),
                 ],
               ),
               SizedBox(
@@ -327,20 +269,80 @@ class _HomePageScreenState extends State<HomePageScreen> {
                         ),
                       ),
                       Icon(
-                        Icons.arrow_upward,
+                        Icons.arrow_downward,
                         color: ColorConstants.kwhiteColor,
                       ),
                     ],
                   )
                 ],
               ),
-              SizedBox(
-                height: 10,
-              )
+              Row(
+                children: [
+                  Container(
+                      height: 25,
+                      width: MediaQuery.of(context).size.width / 1.1,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          RoundedProgressBar(
+                            style: RoundedProgressBarStyle(
+                                colorProgress: Colors.red,
+                                backgroundProgress: Colors.grey[400],
+                                borderWidth: 0,
+                                widthShadow: 0),
+                            borderRadius: BorderRadius.circular(24),
+                            height: 7,
+                            percent: ((expense.toDouble() * 100) /
+                                        (income.toDouble() +
+                                            expense.toDouble())) >
+                                    0
+                                ? ((expense.toDouble() * 100) /
+                                    (income.toDouble() + expense.toDouble()))
+                                : 0,
+                          ),
+                        ],
+                      )),
+                ],
+              ),
             ],
           ),
         ),
       ),
     );
   }
+
+  Future<void> share() async {
+    await FlutterShare.share(
+        title: 'Example share',
+        text: 'Example share text',
+        linkUrl: 'https://flutter.dev/',
+        chooserTitle: 'Example Chooser Title');
+  }
+
+  void choiceAction(String choice) {
+    if (choice == Constants.PieChart) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return PichartPage(this.income, this.expense);
+      }));
+    } else if (choice == Constants.About) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return AboutPage();
+      }));
+    } else if (choice == Constants.Contact) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return MycontactPage();
+      }));
+    } else if (choice == Constants.Share) {
+      share();
+    }
+  }
+}
+
+class Constants {
+  static const String PieChart = 'Chart View';
+  static const String About = 'About';
+  static const String Contact = 'Contact';
+  static const String Share = 'Share';
+
+  static const List<String> choices = <String>[PieChart, About, Contact, Share];
 }

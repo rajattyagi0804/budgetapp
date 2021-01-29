@@ -9,4 +9,13 @@ class FirestoreFunction {
         .orderBy("time", descending: true)
         .get();
   }
+
+  deleteTransaction(String id, String uid) async {
+    await FirebaseFirestore.instance
+        .collection("user")
+        .doc(uid)
+        .collection("entrydata")
+        .doc(id)
+        .delete();
+  }
 }

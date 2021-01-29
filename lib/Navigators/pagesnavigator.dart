@@ -14,10 +14,12 @@ class _IndexPageState extends State<IndexPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ColorConstants.kblackColor,
-      bottomNavigationBar: _buildBottomNavigationBarPortrait(),
-      body: CurrentScreenIndex(selectedOptionIndex),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: ColorConstants.kblackColor,
+        bottomNavigationBar: _buildBottomNavigationBarPortrait(),
+        body: CurrentScreenIndex(selectedOptionIndex),
+      ),
     );
   }
 
@@ -30,24 +32,24 @@ class _IndexPageState extends State<IndexPage> {
   Widget _buildBottomNavigationBarPortrait() {
     var bottomNavigationBarItem = BottomNavigationBarItem(
       icon: Icon(CupertinoIcons.home),
-      title: Text(''),
+      label: 'Home',
     );
     return BottomNavigationBar(
       items: [
         bottomNavigationBarItem,
         BottomNavigationBarItem(
-          icon: Icon(Icons.credit_card),
-          title: Text(''),
+          icon: Icon(Icons.article),
+          label: 'Data',
         ),
         BottomNavigationBarItem(
           icon: Icon(FontAwesomeIcons.history),
-          title: Text(''),
+          label: 'Transaction',
         ),
         BottomNavigationBarItem(
           icon: Icon(
             CupertinoIcons.person,
           ),
-          title: Text(''),
+          label: 'Profile',
         ),
       ],
       currentIndex: selectedOptionIndex,

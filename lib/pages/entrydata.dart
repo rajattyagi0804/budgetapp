@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:budgetapp/common/color_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 class SIForm extends StatefulWidget {
   @override
@@ -18,6 +19,22 @@ class _SIFormState extends State<SIForm> {
   final double _minimumPadding = 5.0;
   FirebaseAuth auth = FirebaseAuth.instance;
   var _currentItemSelected = '';
+  bool dateNotSelected = true;
+  DateTime selectedDate = DateTime.now();
+  String date;
+  GlobalKey<FormState> _key = GlobalKey<FormState>();
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        firstDate: DateTime(2015, 8),
+        lastDate: DateTime(2101));
+    if (picked != null && picked != selectedDate)
+      setState(() {
+        selectedDate = picked;
+        dateNotSelected = false;
+      });
+  }
 
   @override
   void initState() {
@@ -33,11 +50,13 @@ class _SIFormState extends State<SIForm> {
 
   @override
   Widget build(BuildContext context) {
+    date = DateFormat('dd/MM/yyyy').format(selectedDate);
     TextStyle textStyle = TextStyle(color: Colors.white);
 
     return Scaffold(
       appBar: AppBar(
         title: Container(
+          padding: const EdgeInsets.only(top: 30),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -54,17 +73,6 @@ class _SIFormState extends State<SIForm> {
                   ),
                 ],
               ),
-              Column(
-                children: [
-                  FloatingActionButton.extended(
-                    backgroundColor: const Color(0xFFFFC107),
-                    foregroundColor: Colors.black,
-                    onPressed: reset,
-                    icon: Icon(Icons.add),
-                    label: Text('NEW'),
-                  ),
-                ],
-              )
             ],
           ),
         ),
@@ -74,7 +82,11 @@ class _SIFormState extends State<SIForm> {
       body: Form(
         key: _formKey,
         child: Padding(
-            padding: EdgeInsets.all(_minimumPadding + 15.0),
+            padding: EdgeInsets.only(
+                top: _minimumPadding + 30.0,
+                bottom: _minimumPadding + 15.0,
+                left: _minimumPadding + 15.0,
+                right: _minimumPadding + 15.0),
             child: ListView(
               children: <Widget>[
                 Padding(
@@ -116,8 +128,12 @@ class _SIFormState extends State<SIForm> {
                       controller: roiController,
                       validator: (String value) {
                         RegExp calender = RegExp(r'[^0-9]');
+
                         if (value.isEmpty || calender.hasMatch(value)) {
                           return 'Please Enter The Money !';
+                        }
+                        if (int.parse(value) > 9999999) {
+                          return 'Please Enter less than 9999999';
                         }
                       },
                       decoration: InputDecoration(
@@ -144,36 +160,39 @@ class _SIFormState extends State<SIForm> {
                     child: Row(
                       children: <Widget>[
                         Expanded(
-                            child: TextFormField(
-                          keyboardType: TextInputType.datetime,
-                          style: textStyle,
-                          controller: termController,
-                          validator: (String value) {
-                            RegExp calenderDate = RegExp(
-                                r'^((((0?[1-9]|[12]\d|3[01])[/](0?[13578]|1[02])[/]((1[6-9]|[2-9]\d)?\d{2}))|((0?[1-9]|[12]\d|30)[/](0?[13456789]|1[012])[/]((1[6-9]|[2-9]\d)?\d{2}))|((0?[1-9]|1\d|2[0-8])[/]0?2[/]((1[6-9]|[2-9]\d)?\d{2}))|(29[/]0?2[/]((1[6-9]|[2-9]\d)?(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00)|00)))|(((0[1-9]|[12]\d|3[01])(0[13578]|1[02])((1[6-9]|[2-9]\d)?\d{2}))|((0[1-9]|[12]\d|30)(0[13456789]|1[012])((1[6-9]|[2-9]\d)?\d{2}))|((0[1-9]|1\d|2[0-8])02((1[6-9]|[2-9]\d)?\d{2}))|(2902((1[6-9]|[2-9]\d)?(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00)|00))))$');
-
-                            if (!calenderDate.hasMatch(value))
-                              return 'Enter Valid Date';
-                          },
-                          decoration: InputDecoration(
-                            labelText: 'Date',
-                            hintText: 'DD/MM/YYYY',
-                            hintStyle: TextStyle(
-                                fontSize: 15.0, color: Colors.white54),
-                            labelStyle: textStyle,
-                            errorStyle: TextStyle(
-                                color: Colors.yellowAccent, fontSize: 10.0),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5.0)),
-                            enabledBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Color(0xFFFFA726)),
-                                borderRadius: BorderRadius.circular(5.0)),
-                            focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.blue),
-                                borderRadius: BorderRadius.circular(5.0)),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 7),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5.0),
+                                border: Border.all(color: Color(0xFFFFA726))),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                dateNotSelected == true
+                                    ? Text(
+                                        'Date',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 15),
+                                      )
+                                    : Text(
+                                        '$date',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 15),
+                                      ),
+                                IconButton(
+                                    icon: Icon(
+                                      Icons.calendar_today_outlined,
+                                      size: 20,
+                                      color: Colors.white,
+                                    ),
+                                    onPressed: () {
+                                      _selectDate(context);
+                                    })
+                              ],
+                            ),
                           ),
-                        )),
+                        ),
                         Container(
                           width: _minimumPadding * 5,
                         ),
@@ -214,9 +233,46 @@ class _SIFormState extends State<SIForm> {
                             ),
                             onPressed: () {
                               setState(() {
-                                if (_formKey.currentState.validate()) {
-                                  // this.displayResult = _calculateTotalReturns();
-                                  _calculateTotalReturns();
+                                if (_formKey.currentState.validate() &&
+                                    dateNotSelected == false) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20.0),
+                                        ),
+                                        content: Text(
+                                            "Are You Sure Want To Proceed ?"),
+                                        actions: <Widget>[
+                                          FlatButton(
+                                            child: Text("YES"),
+                                            onPressed: () {
+                                              _calculateTotalReturns();
+
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                          FlatButton(
+                                            child: Text("NO"),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                          FlatButton(
+                                            child: Text("CANCEL"),
+                                            onPressed: () {
+                                              reset();
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  errorDialogue("Choose Date", context);
                                 }
                               });
                             },
@@ -247,7 +303,7 @@ class _SIFormState extends State<SIForm> {
     Map<String, dynamic> map = {
       "description": principalController.text,
       "money": int.parse(roiController.text),
-      "date": termController.text,
+      "date": date,
       "moneytype": this._currentItemSelected,
       "time": DateTime.now().millisecondsSinceEpoch
     };
@@ -258,16 +314,40 @@ class _SIFormState extends State<SIForm> {
         .collection("user")
         .doc(id)
         .collection("entrydata")
-        .add(map);
+        .add(map)
+        .then((value) => showDialog(
+            context: context,
+            builder: (context) {
+              Future.delayed(Duration(seconds: 1), () {
+                Navigator.of(context).pop(true);
+              });
+              return AlertDialog(
+                content: Text('Success!!'),
+              );
+            }));
     reset();
+  }
+
+  Future<Widget> errorDialogue(String message, context) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          Future.delayed(Duration(seconds: 2), () {
+            Navigator.pop(context);
+          });
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text(message),
+          );
+        });
   }
 
   reset() {
     setState(() {
+      dateNotSelected = true;
       _currentItemSelected = _currencies[0];
       principalController.text = "";
       roiController.text = "";
-      termController.text = "";
     });
   }
 }

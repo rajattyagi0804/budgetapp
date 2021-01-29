@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 Widget transactionCard(String title, var money, String moneytype, String date) {
   // final numberFormat = new NumberFormat("##,###", "en_US");
   String amount = moneytype == "Income" ? "+$money" : "-$money";
+
   return Column(
     children: [
       Container(
@@ -33,7 +34,9 @@ Widget transactionCard(String title, var money, String moneytype, String date) {
                       child: Text(
                         title[0],
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.white),
                       ),
                     ),
                   ),
@@ -74,16 +77,24 @@ Widget transactionCard(String title, var money, String moneytype, String date) {
               width: 10,
             ),
             Padding(
-              padding: const EdgeInsets.only(right: 15),
-              child: Text(
-                amount,
-                style: GoogleFonts.openSans(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: ColorConstants.kwhiteColor,
-                ),
-              ),
-            ),
+                padding: const EdgeInsets.only(right: 15),
+                child: moneytype == 'Income'
+                    ? Text(
+                        amount,
+                        style: GoogleFonts.openSans(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.green,
+                        ),
+                      )
+                    : Text(
+                        amount,
+                        style: GoogleFonts.openSans(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.red,
+                        ),
+                      )),
           ],
         ),
       ),

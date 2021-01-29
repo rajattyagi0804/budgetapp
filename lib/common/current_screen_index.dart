@@ -3,7 +3,7 @@ import 'package:budgetapp/pages/Transaction.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetapp/pages/entrydata.dart';
-import '../pages/home_page.dart';
+import '../pages/profilepage.dart';
 
 class CurrentScreenIndex extends StatelessWidget {
   final int index;
@@ -27,7 +27,7 @@ class CurrentScreenIndex extends StatelessWidget {
         break;
       case 3:
         {
-          return Homepage();
+          return ProfilePage();
         }
         break;
       default:

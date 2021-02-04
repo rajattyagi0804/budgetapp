@@ -16,6 +16,7 @@ class _ReadddataState extends State<Readddata> {
   bool isSigned = true;
   FirebaseAuth auth = FirebaseAuth.instance;
   String uid;
+
   QuerySnapshot snapshot;
   FirestoreFunction firestoreFunction = FirestoreFunction();
   getUser() async {

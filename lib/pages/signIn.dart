@@ -93,7 +93,6 @@ class _SignInState extends State<SignIn> {
                         color: Colors.black,
                       ),
                       onPressed: () {
-                        // Update the state i.e. toogle the state of passwordVisible variable
                         setState(() {
                           _passwordVisible = !_passwordVisible;
                         });
@@ -145,7 +144,7 @@ class _SignInState extends State<SignIn> {
                 child: Container(
                   alignment: Alignment.bottomRight,
                   child: Text(
-                    'Forget Password?',
+                    'Forgot Password?',
                     style: TextStyle(
                       fontSize: 17,
                       color: Colors.white,

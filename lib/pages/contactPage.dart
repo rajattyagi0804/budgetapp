@@ -26,8 +26,15 @@ class MycontactPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Contact Us'),
-        backgroundColor: Colors.deepPurple[300],
+        title: Text(
+          'Contact Us',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 30,
+          ),
+        ),
+        backgroundColor: Colors.black,
+        centerTitle: true,
       ),
       body: Container(
         child: SafeArea(

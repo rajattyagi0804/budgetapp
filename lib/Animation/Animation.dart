@@ -79,7 +79,6 @@ class _AnimationPageState extends State<AnimationPage>
                   ),
                 ),
               ),
-
               DelayedAnimation(
                 child: Text(
                   "Smart",
@@ -110,13 +109,6 @@ class _AnimationPageState extends State<AnimationPage>
                 ),
                 delay: delayedAmount + 3000,
               ),
-              // DelayedAnimation(
-              //   child: Text(
-              //     "Journaling  companion",
-              //     style: TextStyle(fontSize: 20.0, color: color),
-              //   ),
-              //   delay: delayedAmount + 3000,
-              // ),
               SizedBox(
                 height: 160.0,
               ),

@@ -2,6 +2,7 @@ import 'package:budgetapp/common/color_constants.dart';
 import 'package:budgetapp/pages/Transaction.dart';
 import 'package:budgetapp/pages/about.dart';
 import 'package:budgetapp/pages/contactPage.dart';
+import 'package:budgetapp/pages/notification.dart';
 import 'package:budgetapp/pages/pichartPage.dart';
 import 'package:flutter_rounded_progress_bar/flutter_rounded_progress_bar.dart';
 import 'package:flutter_rounded_progress_bar/rounded_progress_bar_style.dart';
@@ -33,8 +34,10 @@ class _HomePageScreenState extends State<HomePageScreen> {
   bool _loading;
   int activeIndex;
   FirestoreFunction firestoreFunction = FirestoreFunction();
+  User user;
+  String id;
   getIncome() async {
-    String id = auth.currentUser.uid;
+    id = auth.currentUser.uid;
     QuerySnapshot k = await firestoreFunction.getUserInformation(id);
     if (k != null) {
       for (var i = 0; i < k.docs.length; i++) {
@@ -52,6 +55,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
   void initState() {
     super.initState();
     getIncome();
+
     _loading = false;
   }
 
@@ -72,8 +76,19 @@ class _HomePageScreenState extends State<HomePageScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return NotificationPage();
+                      }));
+                    },
+                    icon: Icon(Icons.notification_important_outlined),
+                    color: ColorConstants.kwhiteColor,
+                  ),
                   Padding(
-                      padding: const EdgeInsets.all(3.0),
+                      padding: const EdgeInsets.only(
+                          top: 3.0, right: 3.0, bottom: 3.0, left: 25.0),
                       child: PopupMenuButton<String>(
                         child: Icon(
                           Icons.more_vert,
@@ -88,7 +103,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                             );
                           }).toList();
                         },
-                      ))
+                      )),
                 ],
               ),
               SizedBox(
@@ -126,7 +141,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                 size: 30,
                                 color: Colors.white,
                               )
-                            : income - expense > 0
+                            : (income - expense) > 0
                                 ? Icon(
                                     Icons.arrow_upward,
                                     size: 30,
@@ -145,44 +160,26 @@ class _HomePageScreenState extends State<HomePageScreen> {
               Container(
                 height: MediaQuery.of(context).size.height / 2.5,
                 width: MediaQuery.of(context).size.width,
-                child: GestureDetector(
-                  onDoubleTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return Readddata();
-                    }));
-                  },
-                  child: Center(
-                      child: income - expense == 0
-                          ? CircleAvatar(
-                              radius: 90,
-                              child: Icon(
-                                Icons.assignment_turned_in_sharp,
-                                size: 70,
-                                color: Colors.white,
-                              ),
-                              backgroundColor: Colors.blue,
-                            )
-                          : income - expense > 0
-                              ? CircleAvatar(
-                                  radius: 90,
-                                  child: Icon(
-                                    Icons.arrow_upward,
-                                    size: 70,
-                                    color: Colors.white,
-                                  ),
-                                  backgroundColor: Colors.green,
-                                )
-                              : CircleAvatar(
-                                  child: Icon(
-                                    Icons.arrow_downward,
-                                    size: 70,
-                                    color: Colors.white,
-                                  ),
-                                  radius: 90,
-                                  backgroundColor: Colors.red[900],
-                                )),
-                ),
+                child: Center(
+                    child: income - expense == 0
+                        ? CircleAvatar(
+                            radius: 90,
+                            child: Icon(
+                              Icons.assignment_turned_in_sharp,
+                              size: 70,
+                              color: Colors.white,
+                            ),
+                            backgroundColor: Colors.blue,
+                          )
+                        : CircleAvatar(
+                            radius: 90,
+                            child: Icon(
+                              Icons.arrow_upward,
+                              size: 70,
+                              color: Colors.white,
+                            ),
+                            backgroundColor: Colors.green,
+                          )),
               ),
               SizedBox(
                 height: 50,
@@ -225,21 +222,22 @@ class _HomePageScreenState extends State<HomePageScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           RoundedProgressBar(
-                            style: RoundedProgressBarStyle(
-                                colorProgress: Colors.green,
-                                backgroundProgress: Colors.grey[400],
-                                borderWidth: 0,
-                                widthShadow: 0),
-                            borderRadius: BorderRadius.circular(24),
-                            height: 7,
-                            percent: ((income.toDouble() * 100) /
-                                        (income.toDouble() +
-                                            expense.toDouble())) >
-                                    0
-                                ? ((income.toDouble() * 100) /
-                                    (income.toDouble() + expense.toDouble()))
-                                : 0,
-                          ),
+                              style: RoundedProgressBarStyle(
+                                  colorProgress: Colors.green,
+                                  backgroundProgress: Colors.grey[400],
+                                  borderWidth: 0,
+                                  widthShadow: 0),
+                              borderRadius: BorderRadius.circular(24),
+                              height: 7,
+                              percent: (100 -
+                                          (expense.toDouble() /
+                                                  income.toDouble()) *
+                                              100) >
+                                      0
+                                  ? (100 -
+                                      (expense.toDouble() / income.toDouble()) *
+                                          100)
+                                  : 0),
                         ],
                       )),
                 ],
@@ -285,21 +283,20 @@ class _HomePageScreenState extends State<HomePageScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           RoundedProgressBar(
-                            style: RoundedProgressBarStyle(
-                                colorProgress: Colors.red,
-                                backgroundProgress: Colors.grey[400],
-                                borderWidth: 0,
-                                widthShadow: 0),
-                            borderRadius: BorderRadius.circular(24),
-                            height: 7,
-                            percent: ((expense.toDouble() * 100) /
-                                        (income.toDouble() +
-                                            expense.toDouble())) >
-                                    0
-                                ? ((expense.toDouble() * 100) /
-                                    (income.toDouble() + expense.toDouble()))
-                                : 0,
-                          ),
+                              style: RoundedProgressBarStyle(
+                                  colorProgress: Colors.red,
+                                  backgroundProgress: Colors.grey[400],
+                                  borderWidth: 0,
+                                  widthShadow: 0),
+                              borderRadius: BorderRadius.circular(24),
+                              height: 7,
+                              percent: (expense.toDouble() /
+                                              income.toDouble()) *
+                                          100 >
+                                      0
+                                  ? (expense.toDouble() / income.toDouble()) *
+                                      100
+                                  : 0),
                         ],
                       )),
                 ],

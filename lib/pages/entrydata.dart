@@ -1,3 +1,5 @@
+import 'package:budgetapp/pages/viewRemainder.dart';
+import 'package:budgetapp/services/database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:budgetapp/common/color_constants.dart';
@@ -36,9 +38,49 @@ class _SIFormState extends State<SIForm> {
       });
   }
 
+  FirestoreFunction firestoreFunction = FirestoreFunction();
+  User user;
+  String id;
+  int income = 0, expense = 0;
+
+  QuerySnapshot snapshot;
+  getIncome() async {
+    id = auth.currentUser.uid;
+    QuerySnapshot k = await firestoreFunction.getUserInformation(id);
+    if (k != null) {
+      for (var i = 0; i < k.docs.length; i++) {
+        if (k.docs[i].get("moneytype") == "Income") {
+          income += k.docs[i].get("money");
+        } else {
+          expense += k.docs[i].get("money");
+        }
+      }
+
+      setState(() {});
+    }
+  }
+
+  int totalMoney = 0;
+  getRemainders() async {
+    user = auth.currentUser;
+    id = user.uid;
+    QuerySnapshot k = await firestoreFunction.getRemainders(id);
+    if (k != null) {
+      for (var i = 0; i < k.docs.length; i++) {
+        if (DateTime.now().isBefore(k.docs[i].get("date").toDate())) {
+          totalMoney += k.docs[i].get("money");
+        }
+      }
+
+      setState(() {});
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    getRemainders();
+    getIncome();
     _currentItemSelected = _currencies[0];
   }
 
@@ -55,6 +97,18 @@ class _SIFormState extends State<SIForm> {
 
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(
+              icon: Icon(
+                Icons.add,
+                size: 35,
+              ),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return ViewRemainder();
+                }));
+              })
+        ],
         title: Container(
           padding: const EdgeInsets.only(top: 30),
           child: Row(
@@ -66,7 +120,7 @@ class _SIFormState extends State<SIForm> {
                   Text(
                     'Data Entry',
                     style: GoogleFonts.spartan(
-                      fontSize: 22,
+                      fontSize: 25,
                       fontWeight: FontWeight.w700,
                       color: ColorConstants.kwhiteColor,
                     ),
@@ -79,216 +133,243 @@ class _SIFormState extends State<SIForm> {
         backgroundColor: ColorConstants.kblackColor,
       ),
       backgroundColor: Colors.black,
-      body: Form(
-        key: _formKey,
-        child: Padding(
-            padding: EdgeInsets.only(
-                top: _minimumPadding + 30.0,
-                bottom: _minimumPadding + 15.0,
-                left: _minimumPadding + 15.0,
-                right: _minimumPadding + 15.0),
-            child: ListView(
-              children: <Widget>[
-                Padding(
-                    padding: EdgeInsets.only(
-                        top: _minimumPadding, bottom: _minimumPadding),
-                    child: TextFormField(
-                      keyboardType: TextInputType.text,
-                      style: textStyle,
-                      controller: principalController,
-                      validator: (String value) {
-                        if (value.isEmpty) {
-                          return 'Please Enter The Description !';
-                        }
-                      },
-                      decoration: InputDecoration(
-                        labelText: 'Description',
-                        hintText: 'Enter the Amount Description',
-                        hintStyle:
-                            TextStyle(fontSize: 15.0, color: Colors.white54),
-                        labelStyle: textStyle,
-                        errorStyle: TextStyle(
-                            color: Colors.yellowAccent, fontSize: 10.0),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5.0)),
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xFFFFA726)),
-                            borderRadius: BorderRadius.circular(5.0)),
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blue),
-                            borderRadius: BorderRadius.circular(5.0)),
-                      ),
-                    )),
-                Padding(
-                    padding: EdgeInsets.only(
-                        top: _minimumPadding, bottom: _minimumPadding),
-                    child: TextFormField(
-                      keyboardType: TextInputType.text,
-                      style: textStyle,
-                      controller: roiController,
-                      validator: (String value) {
-                        RegExp calender = RegExp(r'[^0-9]');
+      body: Container(
+        child: Form(
+          key: _formKey,
+          child: Padding(
+              padding: EdgeInsets.only(
+                  top: _minimumPadding + 30.0,
+                  bottom: _minimumPadding + 15.0,
+                  left: _minimumPadding + 15.0,
+                  right: _minimumPadding + 15.0),
+              child: ListView(
+                children: <Widget>[
+                  Padding(
+                      padding: EdgeInsets.only(
+                          top: _minimumPadding, bottom: _minimumPadding),
+                      child: TextFormField(
+                        keyboardType: TextInputType.text,
+                        style: textStyle,
+                        controller: principalController,
+                        validator: (String value) {
+                          if (value.isEmpty) {
+                            return 'Please Enter The Description !';
+                          }
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Description',
+                          hintText: 'Enter the Amount Description',
+                          hintStyle:
+                              TextStyle(fontSize: 15.0, color: Colors.white54),
+                          labelStyle: textStyle,
+                          errorStyle: TextStyle(
+                              color: Colors.yellowAccent, fontSize: 10.0),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5.0)),
+                          enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFFFFA726)),
+                              borderRadius: BorderRadius.circular(5.0)),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.blue),
+                              borderRadius: BorderRadius.circular(5.0)),
+                        ),
+                      )),
+                  Padding(
+                      padding: EdgeInsets.only(
+                          top: _minimumPadding, bottom: _minimumPadding),
+                      child: TextFormField(
+                        keyboardType: TextInputType.text,
+                        style: textStyle,
+                        controller: roiController,
+                        validator: (String value) {
+                          RegExp calender = RegExp(r'[^0-9]');
 
-                        if (value.isEmpty || calender.hasMatch(value)) {
-                          return 'Please Enter The Money !';
-                        }
-                        if (int.parse(value) > 9999999) {
-                          return 'Please Enter less than 9999999';
-                        }
-                      },
-                      decoration: InputDecoration(
-                        labelText: 'Money',
-                        hintText: 'Enter your Amount',
-                        hintStyle:
-                            TextStyle(fontSize: 15.0, color: Colors.white54),
-                        labelStyle: textStyle,
-                        errorStyle: TextStyle(
-                            color: Colors.yellowAccent, fontSize: 10.0),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5.0)),
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xFFFFA726)),
-                            borderRadius: BorderRadius.circular(5.0)),
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blue),
-                            borderRadius: BorderRadius.circular(5.0)),
+                          if (value.isEmpty || calender.hasMatch(value)) {
+                            return 'Please Enter The Money !';
+                          }
+                          if (int.parse(value) > 9999999) {
+                            return 'Please Enter less than 9999999';
+                          }
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Money',
+                          hintText: 'Enter your Amount',
+                          hintStyle:
+                              TextStyle(fontSize: 15.0, color: Colors.white54),
+                          labelStyle: textStyle,
+                          errorStyle: TextStyle(
+                              color: Colors.yellowAccent, fontSize: 10.0),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5.0)),
+                          enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFFFFA726)),
+                              borderRadius: BorderRadius.circular(5.0)),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.blue),
+                              borderRadius: BorderRadius.circular(5.0)),
+                        ),
+                      )),
+                  Padding(
+                      padding: EdgeInsets.only(
+                        top: _minimumPadding,
+                        bottom: _minimumPadding,
                       ),
-                    )),
-                Padding(
-                    padding: EdgeInsets.only(
-                        top: _minimumPadding, bottom: _minimumPadding),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 7),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5.0),
-                                border: Border.all(color: Color(0xFFFFA726))),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                dateNotSelected == true
-                                    ? Text(
-                                        'Date',
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 15),
-                                      )
-                                    : Text(
-                                        '$date',
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 15),
-                                      ),
-                                IconButton(
-                                    icon: Icon(
-                                      Icons.calendar_today_outlined,
-                                      size: 20,
-                                      color: Colors.white,
-                                    ),
-                                    onPressed: () {
-                                      _selectDate(context);
-                                    })
-                              ],
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: _minimumPadding * 5,
-                        ),
-                        Expanded(
-                            child: DropdownButton<String>(
-                          items: _currencies.map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(
-                                value,
-                                style: TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            );
-                          }).toList(),
-                          value: _currentItemSelected,
-                          onChanged: (String newValueSelected) {
-                            _onDropDownItemSelected(newValueSelected);
-                          },
-                        ))
-                      ],
-                    )),
-                Padding(
-                    padding:
-                        EdgeInsets.only(bottom: _minimumPadding, top: 20.0),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              primary: Colors.blue, // background
-                              onPrimary: Colors.white, // foreground
-                            ),
-                            child: Text(
-                              'Save',
-                              textScaleFactor: 1.5,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                if (_formKey.currentState.validate() &&
-                                    dateNotSelected == false) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(20.0),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 7),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                  border: Border.all(color: Color(0xFFFFA726))),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  dateNotSelected == true
+                                      ? Text(
+                                          'Date',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15),
+                                        )
+                                      : Text(
+                                          '$date',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 13),
                                         ),
-                                        content: Text(
-                                            "Are You Sure Want To Proceed ?"),
-                                        actions: <Widget>[
-                                          FlatButton(
-                                            child: Text("YES"),
-                                            onPressed: () {
-                                              _calculateTotalReturns();
-
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                          FlatButton(
-                                            child: Text("NO"),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                          FlatButton(
-                                            child: Text("CANCEL"),
-                                            onPressed: () {
-                                              reset();
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                } else {
-                                  errorDialogue("Choose Date", context);
-                                }
-                              });
-                            },
+                                  IconButton(
+                                      icon: Icon(
+                                        Icons.calendar_today_outlined,
+                                        size: 20,
+                                        color: Colors.white,
+                                      ),
+                                      onPressed: () {
+                                        _selectDate(context);
+                                      })
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
-                    )),
-                Padding(
-                  padding: EdgeInsets.all(_minimumPadding * 2),
-                  child: Text(
-                    this.displayResult,
-                    style: textStyle,
-                  ),
-                )
-              ],
-            )),
+                          Container(
+                            width: _minimumPadding * 5,
+                          ),
+                          Expanded(
+                              child: DropdownButton<String>(
+                            items: _currencies.map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(
+                                  value,
+                                  style: TextStyle(
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              );
+                            }).toList(),
+                            value: _currentItemSelected,
+                            onChanged: (String newValueSelected) {
+                              _onDropDownItemSelected(newValueSelected);
+                            },
+                          ))
+                        ],
+                      )),
+                  Padding(
+                      padding:
+                          EdgeInsets.only(bottom: _minimumPadding, top: 20.0),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.blue, // background
+                                onPrimary: Colors.white, // foreground
+                              ),
+                              child: Text(
+                                'Save',
+                                textScaleFactor: 1.5,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  if (_formKey.currentState.validate() &&
+                                      dateNotSelected == false) {
+                                    if (this._currentItemSelected == 'Income' ||
+                                        (this._currentItemSelected ==
+                                                'Expense' &&
+                                            ((totalMoney == 0 &&
+                                                    int.parse(roiController
+                                                            .text) <=
+                                                        income - expense) ||
+                                                (totalMoney > 0 &&
+                                                        int.parse(roiController
+                                                                .text) <=
+                                                            income -
+                                                                expense -
+                                                                totalMoney) &&
+                                                    income - expense >=
+                                                        totalMoney))) {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20.0),
+                                            ),
+                                            content: Text(
+                                                "Are You Sure Want To Proceed ?"),
+                                            actions: <Widget>[
+                                              FlatButton(
+                                                child: Text("YES"),
+                                                onPressed: () {
+                                                  _calculateTotalReturns();
+
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                              FlatButton(
+                                                child: Text("NO"),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                              FlatButton(
+                                                child: Text("CANCEL"),
+                                                onPressed: () {
+                                                  reset();
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    } else {
+                                      errorDialogue(
+                                          "Not Enough Balance to expense",
+                                          context);
+                                    }
+                                  } else {
+                                    errorDialogue("Choose Date", context);
+                                  }
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      )),
+                  Padding(
+                    padding: EdgeInsets.all(_minimumPadding * 2),
+                    child: Text(
+                      this.displayResult,
+                      style: textStyle,
+                    ),
+                  )
+                ],
+              )),
+        ),
       ),
     );
   }

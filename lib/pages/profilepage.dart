@@ -170,24 +170,45 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Container(
             padding:
                 const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-            // padding: EdgeInsets.all(20),
             child: Column(children: <Widget>[
-              // crossAxisAlignment: CrossAxisAlignment.center,
               FloatingActionButton.extended(
                 backgroundColor: Colors.deepPurple,
                 foregroundColor: Colors.black,
                 onPressed: () {
-                  signOut();
-                  // Respond to button press
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        content: Text("Do you want to LogOut ?"),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text("YES"),
+                            onPressed: () {
+                              signOut();
+
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          FlatButton(
+                            child: Text("NO"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 },
                 label: Text(
                   'LOGOUT',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                 ),
               )
-            ])
-//
-            ),
+            ])),
       ),
     );
   }

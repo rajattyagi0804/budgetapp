@@ -16,8 +16,10 @@ class _PichartPageState extends State<PichartPage> {
   adddata() {
     double expense = widget.expense.toDouble();
     double income = widget.income.toDouble();
-    income = (income * 100) / (income + expense);
-    expense = (expense * 100) / (income + expense);
+
+    income = 100 - (expense / income) * 100;
+    expense = 100 - income;
+
     data.addAll(
       {
         'Income': income,

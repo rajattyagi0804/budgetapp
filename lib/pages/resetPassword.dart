@@ -124,7 +124,7 @@ class _ResetPasswordState extends State<ResetPassword> {
       text: TextSpan(
           text: 'S',
           style: GoogleFonts.portLligatSans(
-            textStyle: Theme.of(context).textTheme.display1,
+            textStyle: Theme.of(context).textTheme.headline4,
             fontSize: 70,
             fontWeight: FontWeight.w700,
             color: Color(0xffe46b10),
